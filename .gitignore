@@ -1,0 +1,13 @@
+*.iml
+*.idea
+**/build
+**/.DS_Store
+
+case-*
+*.log
+cred
+.gradle
+gradlew.bat
+docs.txt
+_*
+LIN*

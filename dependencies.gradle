@@ -1,0 +1,36 @@
+// Versions are defined in gradle.properties
+ext.libraries = [
+    CommonLibs: [ // Common libraries
+        "com.google.guava:guava:${guava_version}",
+        "commons-io:commons-io:${commons_io_version}"
+    ],
+    CommandLineLibs: [
+        "com.lexicalscope.jewelcli:jewelcli:${jewelcli_version}"
+    ],
+    GRPCLibs: [
+        "io.grpc:grpc-protobuf:${grpc_version}",
+        "io.grpc:grpc-stub:${grpc_version}",
+    ],
+    NettyLibs: [
+        "io.grpc:grpc-netty:${grpc_version}"
+    ],
+    AmazonLibs: [
+        "com.amazonaws:aws-java-sdk-s3:${aws_sdk_version}",
+        "com.amazonaws:aws-java-sdk-ec2:${aws_sdk_version}"
+    ],
+    ZookeeperLibs: [
+        "org.apache.curator:curator-framework:${curator_version}"
+    ],
+    JacksonLibs: [
+        "com.fasterxml.jackson.core:jackson-core:${jackson_version}",
+        "com.fasterxml.jackson.core:jackson-databind:${jackson_version}",
+        "com.fasterxml.jackson.core:jackson-annotations:${jackson_version}"
+    ],
+    LoggingLibs: [
+        "org.slf4j:slf4j-api:${slf4j_version}",
+        "ch.qos.logback:logback-classic:${logback_version}"
+    ],
+    UnitTest: [
+        "junit:junit:${junit_version}"
+    ]
+]

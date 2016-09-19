@@ -1,0 +1,24 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.0'
+}
+
+// Apply these settings to all projects
+allprojects {
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+// Apply these settings to only subprojects
+subprojects {
+    // Force eclipse projects to not use /bin
+    eclipse.classpath.defaultOutputDir = file('build/eclipse/classes/main')
+
+    dependencies {
+    }
+}
+
+apply from: 'dependencies.gradle'

@@ -1,0 +1,19 @@
+apply plugin: 'java'
+
+dependencies {
+    compile project(":muudo-grpc");
+
+    compile libraries.CommonLibs
+    compile libraries.CommandLineLibs
+
+    compile libraries.JacksonLibs
+    compile libraries.LoggingLibs
+    compile libraries.GRPCLibs
+    compile libraries.NettyLibs
+    compile libraries.ZookeeperLibs
+    compile libraries.AmazonLibs
+
+    // Test
+    testCompile libraries.UnitTest
+}
+
