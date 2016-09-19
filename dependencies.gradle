@@ -2,7 +2,8 @@
 ext.libraries = [
     CommonLibs: [ // Common libraries
         "com.google.guava:guava:${guava_version}",
-        "commons-io:commons-io:${commons_io_version}"
+        "commons-io:commons-io:${commons_io_version}",
+        "org.apache.commons:commons-lang3:${commons_lang3_version}"
     ],
     CommandLineLibs: [
         "com.lexicalscope.jewelcli:jewelcli:${jewelcli_version}"
@@ -24,7 +25,8 @@ ext.libraries = [
     JacksonLibs: [
         "com.fasterxml.jackson.core:jackson-core:${jackson_version}",
         "com.fasterxml.jackson.core:jackson-databind:${jackson_version}",
-        "com.fasterxml.jackson.core:jackson-annotations:${jackson_version}"
+        "com.fasterxml.jackson.core:jackson-annotations:${jackson_version}",
+        "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jackson_version}"
     ],
     LoggingLibs: [
         "org.slf4j:slf4j-api:${slf4j_version}",

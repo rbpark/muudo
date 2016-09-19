@@ -1,6 +1,7 @@
 apply plugin: 'java'
 
 dependencies {
+    compile project(":muudo-common");
     compile project(":muudo-grpc");
 
     compile libraries.CommonLibs

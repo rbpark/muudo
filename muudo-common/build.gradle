@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+dependencies {
+    compile libraries.CommonLibs
+    compile libraries.JacksonLibs
+
+    // Test
+    testCompile libraries.UnitTest
+}

@@ -1,1 +1,3 @@
-include 'muudo-grpc','muudo-metastore'
+include 'muudo-common',
+        'muudo-grpc',
+        'muudo-metastore'
