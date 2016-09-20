@@ -109,23 +109,23 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void testObject() throws Exception {
+        Configuration conf = Configuration.loadFromYamlFile(new File(YAML_FILE));
+        TestPair o = conf.getObject("nestedObject", TestPair.class);
+
+        assertEquals(new TestPair("key3", "value3"), o);
+    }
+
+    @Test
     public void testObjectList() throws Exception {
         Configuration conf = Configuration.loadFromYamlFile(new File(YAML_FILE));
+        List<TestPair> list = conf.getObjectList("complexArray", TestPair.class);
 
-        // Test string arrays
-        String args = conf.getString("complexArray");
-        printf(args);
-
-        List<TestPair> list = conf.getObject("complexArray", ArrayList.class);
-        for (TestPair pair: list) {
-            printf(pair.toString() + "\n");
-        }
-
-//        assertArrayEquals(new TestPair[] {
-//                new TestPair("key1", "value1"),
-//                new TestPair("key2", "value2"),
-//                new TestPair("key3", "value3")},
-//                list);
+        assertArrayEquals(new TestPair[] {
+                new TestPair("key1", "value1"),
+                new TestPair("key2", "value2"),
+                new TestPair("key3", "value3")},
+                list.toArray());
     }
 
     public static class TestPair {
@@ -159,6 +159,25 @@ public class ConfigurationTest {
 
         public String toString() {
             return "{" + key + "," + value + "}";
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TestPair testPair = (TestPair) o;
+
+            if (key != null ? !key.equals(testPair.key) : testPair.key != null) return false;
+            return value != null ? value.equals(testPair.value) : testPair.value == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = key != null ? key.hashCode() : 0;
+            result = 31 * result + (value != null ? value.hashCode() : 0);
+            return result;
         }
     }
 }

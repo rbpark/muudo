@@ -7,6 +7,7 @@ import io.muudo.common.util.JsonUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,26 +56,17 @@ public class Configuration {
             throw Except.newIllegalArgument("Config '%s' missing property '%s'", name, prop);
         }
 
-        try {
-            return mapper.readValue(getString(prop), clazz);
-        } catch (IOException e) {
-            throw Except.newIllegalArgument(e,
-                    "Config '%s' property '%s' can't be converted to object of type %s'", name, prop, clazz.getName());
-        }
+        return mapper.convertValue(map.get(prop), clazz);
     }
 
-//    public <T> List<T> getObjectList(String prop) {
-//        if (!containsKey(prop)) {
-//            throw Except.newIllegalArgument("Config '%s' missing property '%s'", name, prop);
-//        }
-//
-//        try {
-//            return mapper.readValue(getString(prop), new TypeReference<ArrayList<T>>() {});
-//        } catch (IOException e) {
-//            throw Except.newIllegalArgument(e,
-//                    "Config '%s' property '%s' can't be converted to object array", name, prop);
-//        }
-//    }
+    public <T> List<T> getObjectList(String prop, Class<T> clazz) {
+        if (!containsKey(prop)) {
+            throw Except.newIllegalArgument("Config '%s' missing property '%s'", name, prop);
+        }
+
+        return mapper.convertValue(
+                map.get(prop), mapper.getTypeFactory().constructCollectionType(ArrayList.class, clazz));
+    }
 
     public int getInt(String props) {
         if (!containsKey(props)) {

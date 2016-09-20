@@ -18,10 +18,9 @@ complexArray:
       value: value2
     - key: key3
       value: value3
-languages:
-    perl: Elite
-    python: Elite
-    pascal: Lame
+nestedObject:
+    key: key3
+    value: value3
 education: |
     4 GCSEs
     3 A-Levels
