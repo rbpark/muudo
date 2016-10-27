@@ -1,5 +1,6 @@
 package io.muudo.common.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.muudo.common.function.FunctionUtils;
 import io.muudo.common.function.Return;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +16,8 @@ import static org.junit.Assert.*;
 
 
 public class ConfigurationTest {
-    private static final String YAML_FILE = "src/test/files/myconf.yaml";
+    private static final String CONFIG_BASE_DIR = "src/test/files/";
+    private static final String YAML_FILE = CONFIG_BASE_DIR + "myconf.yaml";
 
     @Test
     public void testStrings() throws Exception {
@@ -128,6 +130,23 @@ public class ConfigurationTest {
                 list.toArray());
     }
 
+    @Test
+    public void testConfigurationConversion() throws Exception {
+        Configuration conf = Configuration.loadFromYamlFile(new File(CONFIG_BASE_DIR + "base.yaml"));
+        TestDouble d = conf.as(TestDouble.class);
+        assertEquals(new TestDouble("a", "b"), d);
+
+        TestTriple e = conf.as(TestTriple.class);
+        assertEquals(new TestTriple("a", "b", null), e);
+
+        conf = Configuration.loadFromYamlFile(new File(CONFIG_BASE_DIR + "base2.yaml"));
+        e = conf.as(TestTriple.class);
+        assertEquals(new TestTriple("a", "b", "c"), e);
+
+        d = conf.as(TestDouble.class);
+        assertEquals(new TestDouble("a", "b"), d);
+    }
+
     public static class TestPair {
         private String key;
         private String value;
@@ -177,6 +196,115 @@ public class ConfigurationTest {
         public int hashCode() {
             int result = key != null ? key.hashCode() : 0;
             result = 31 * result + (value != null ? value.hashCode() : 0);
+            return result;
+        }
+    }
+
+    public static class TestTriple {
+        private String a;
+        private String b;
+        private String c;
+
+        public TestTriple(String a, String b, String c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+
+        public TestTriple() {
+        }
+
+        public String getA() {
+            return a;
+        }
+
+        public void setA(String a) {
+            this.a = a;
+        }
+
+        public String getB() {
+            return b;
+        }
+
+        public void setB(String b) {
+            this.b = b;
+        }
+
+        public String getC() {
+            return c;
+        }
+
+        public void setC(String c) {
+            this.c = c;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TestTriple that = (TestTriple) o;
+
+            if (a != null ? !a.equals(that.a) : that.a != null) return false;
+            if (b != null ? !b.equals(that.b) : that.b != null) return false;
+            return c != null ? c.equals(that.c) : that.c == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = a != null ? a.hashCode() : 0;
+            result = 31 * result + (b != null ? b.hashCode() : 0);
+            result = 31 * result + (c != null ? c.hashCode() : 0);
+            return result;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TestDouble {
+        private String a;
+        private String b;
+
+        public TestDouble(String a, String b) {
+            this.a = a;
+            this.b = b;
+        }
+
+        public TestDouble() {
+        }
+
+        public String getA() {
+            return a;
+        }
+
+        public void setA(String a) {
+            this.a = a;
+        }
+
+        public String getB() {
+            return b;
+        }
+
+        public void setB(String b) {
+            this.b = b;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TestDouble that = (TestDouble) o;
+
+            if (a != null ? !a.equals(that.a) : that.a != null) return false;
+            return b != null ? b.equals(that.b) : that.b == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = a != null ? a.hashCode() : 0;
+            result = 31 * result + (b != null ? b.hashCode() : 0);
             return result;
         }
     }

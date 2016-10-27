@@ -3,10 +3,11 @@ package io.muudo.metastore;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.lexicalscope.jewel.cli.CliFactory;
 import io.grpc.Server;
-import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NettyServerBuilder;
+import io.grpc.ServerBuilder;
+import io.muudo.common.config.Configuration;
 import io.muudo.common.util.Utils;
-import io.netty.handler.ssl.SslContext;
+import io.muudo.metastore.configuration.CommandLineOptions;
+import io.muudo.metastore.configuration.MuudoServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +20,17 @@ public class MuudoServer {
     private static final Logger log = LoggerFactory.getLogger(MuudoServer.class);
     public static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
 
+    private Configuration configuration;
+    private MuudoServerConfig serverConfig;
     private Server server;
     private ExecutorService executor;
-    private final ServerOptions options;
 
     public static void main(String[] args) throws Exception {
-        ServerOptions options = CliFactory.parseArguments(ServerOptions.class, args);
-        final MuudoServer server = new MuudoServer(options);
+        CommandLineOptions options = CliFactory.parseArguments(CommandLineOptions.class, args);
+        Utils.validateFileExists("ServerConfig", options.getConfigFile());
+        Configuration conf = Configuration.loadFromYamlFile(new File(options.getConfigFile()));
+
+        final MuudoServer server = new MuudoServer(conf);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -44,43 +49,36 @@ public class MuudoServer {
         server.blockUntilShutdown();
     }
 
-    public MuudoServer(ServerOptions options) {
-        this.options = options;
+    public MuudoServer(Configuration configuration) {
+        this.configuration = configuration;
+        this.serverConfig = configuration.as(MuudoServerConfig.class);
 
-        Utils.validateBetween("Server Port", options.getPort(), 1, 65536);
-        if (options.useTLS()) {
-            log.info("Using tls");
-            Utils.fileExists("Pem", options.pemFilePath());
-            Utils.fileExists("Key", options.keyFilePath());
-        }
+        Utils.validateBetween("Server Port", serverConfig.getPort(), 1, 65536);
     }
 
     public void start() throws Exception {
-        executor = Executors.newFixedThreadPool(options.numThreads());
+        executor = Executors.newFixedThreadPool(serverConfig.getNumThreads());
 
-        SslContext sslContext = null;
-        if (options.useTLS()) {
-            sslContext = GrpcSslContexts.forServer(
-                    new File(options.pemFilePath()), new File(options.keyFilePath())).build();
-        }
-        server = NettyServerBuilder.forPort(options.getPort())
-                .sslContext(sslContext)
-                .maxMessageSize(MAX_MESSAGE_SIZE)
+        server = ServerBuilder.forPort(serverConfig.getPort())
                 .addService(new GreeterImpl())
                 .executor(executor)
-                .build().start();
+                .build()
+                .start();
     }
 
     public void stop() throws Exception {
-        server.shutdownNow();
-        if (!server.awaitTermination(5, TimeUnit.SECONDS)) {
-            System.err.println("Timed out waiting for server shutdown");
+        log.info("Stopping the server");
+        if (server != null) {
+            server.shutdownNow();
+            if (!server.awaitTermination(5, TimeUnit.SECONDS)) {
+                log.error("Timed out waiting for server shutdown");
+            }
+            MoreExecutors.shutdownAndAwaitTermination(executor, 5, TimeUnit.SECONDS);
         }
-        MoreExecutors.shutdownAndAwaitTermination(executor, 5, TimeUnit.SECONDS);
     }
 
     public int getPort() {
-        return options.getPort();
+        return serverConfig.getPort();
     }
 
     private void blockUntilShutdown() throws InterruptedException {

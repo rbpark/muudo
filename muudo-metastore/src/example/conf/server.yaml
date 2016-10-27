@@ -1,0 +1,6 @@
+---
+port: 14900
+numThreads: 10
+useTLS: true
+pemFilePath: src/example/certs/server/server.cert.pem
+keyFilePath: src/example/certs/server/server.pkcs8.pem

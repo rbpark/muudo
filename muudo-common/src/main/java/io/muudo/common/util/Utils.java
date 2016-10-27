@@ -72,10 +72,14 @@ public final class Utils {
     /**
      * Validates that a file exists and returns the file. If not, it throws an exception.
      *
-     * @param name The short name for what the file represents.
+     * @param name The short name for what the file represents. This is only used for exceptions.
      * @param path The path for the file.
      */
     public static File validateFileExists(String name, String path) {
+        if (path == null) {
+            throw Except.newIllegalArgument("%s file has a null path", name);
+        }
+
         File file = new File(path);
         if (!file.exists()) {
             throw Except.newIllegalArgument("%s file does not exist on %s", name, file.getAbsolutePath());
@@ -84,4 +88,14 @@ public final class Utils {
         return file;
     }
 
+    /**
+     * Validates that the object is not null. Will throw an exception if it's null.
+     * @param name The name of the object. This will be put in the exception message.
+     * @param obj The object that should not be null.
+     */
+    public static void validateNotNull(String name, Object obj) {
+        if (obj == null) {
+            throw Except.newIllegalArgument("Object %s is null.", name);
+        }
+    }
 }

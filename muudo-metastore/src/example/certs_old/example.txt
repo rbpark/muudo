@@ -1,0 +1,33 @@
+## To Create this self signed test cert
+## Netty requires the key to be in pkcs8 form, so we convert it.
+## Obviously change this if you plan on using TLS.
+## Example sourced from:
+## https://jamielinux.com/docs/openssl-certificate-authority/create-the-root-pair.html#prepare-the-directory
+
+#### GENERATE ROOT PAIR
+## Generate a root CA key. Password is 'secretpassword'
+openssl genrsa -aes256 -out private/ca.key.pem 4096
+chmod 400 private/ca.key.pem
+
+## Generate a root CA cert.
+openssl req -config openssl.cnf \
+      -key private/ca.key.pem \
+      -new -x509 -days 7300 -sha256 -extensions v3_ca \
+      -out certs/ca.cert.pem
+chmod 444 certs/ca.cert.pem
+
+## Create server key
+openssl genrsa -out server/server.key.pem 2048
+chmod 400 server/server.key.pem
+openssl req -config openssl.cnf -key server/server.key.pem -new -sha256 -out server/server.csr.pem
+
+## Sign the cert
+openssl ca -config openssl.cnf \
+      -extensions server_cert -days 3000 -notext -md sha256 \
+      -in server/server.csr.pem \
+      -out server/server.cert.pem
+chmod 444 server/server.cert.pem
+openssl x509 -noout -text -in server/server.cert.pem
+
+## Convert key to pkcs8 because Netty only supports pkcs8 format
+openSSL pkcs8 -in server/server.key.pem -topk8 -nocrypt -out server/server.pkcs8.pem

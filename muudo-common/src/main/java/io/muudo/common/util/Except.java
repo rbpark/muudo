@@ -15,7 +15,7 @@ public class Except {
      * @return a new IllegalArgumentException
      */
     public static IllegalArgumentException newIllegalArgument(String format, Object ... args) {
-        return newIllegalArgument(null, format, args);
+        return new IllegalArgumentException(String.format(format, args), null);
     }
 
     /**
@@ -40,7 +40,7 @@ public class Except {
      * @return a new IllegalArgumentException
      */
     public static IOException newIOException(String format, Object ... args) {
-        return newIOException(null, format, args);
+        return new IOException(String.format(format, args), null);
     }
 
     /**

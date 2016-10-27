@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.muudo.metastore.proto";
+option java_outer_classname = "AdminProto";
+option objc_class_prefix = "AP";
+
+package io.muudo.metastore.proto;
+
+// The greeting service definition.
+service Admin {
+  rpc CreateTransactionId (RequestId) returns (TransactionId) {}
+
+  // Sends a greeting
+  rpc CreateDataset (CreateDatasetRequest) returns (CreateDatasetReply) {}
+}
+
+message TransactionId {
+  int64 id = 1;
+}
+
+message RequestId {
+  int64 requestId = 1;
+}
+
+// The request message containing the user's name.
+message CreateDatasetRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message CreateDatasetReply {
+  string message = 1;
+}
+
+message CommitAction {
+  int64 txn_id = 1;
+
+  enum Type {
+    ADD = 0;
+    DELETE = 1;
+    RENAME = 2;
+    MODIFY = 3;
+  }
+
+  Type type = 2;
+  string primary_key = 3;
+
+  map<string, string> metadata = 4;
+}
