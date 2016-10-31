@@ -1,7 +1,7 @@
 package io.muudo.metastore.persistence;
 
-/**
- * Created by richardpark on 10/22/16.
- */
-public class ReplaceOperation {
+public class ReplaceOperation extends Operation{
+    public ReplaceOperation(long txnNum, long id, long timestamp) {
+        super(txnNum, id, timestamp);
+    }
 }

@@ -1,10 +1,12 @@
 package io.muudo.metastore.persistence;
 
+import io.muudo.metastore.proto.OperationProto;
 import org.apache.zookeeper.Op;
 
+import java.io.IOException;
 import java.util.HashMap;
 
-public class Operation {
+public abstract class Operation {
     private long txnNum;
     private long id;
     private long timestamp;
@@ -39,4 +41,7 @@ public class Operation {
         this.timestamp = timestamp;
     }
 
+    public abstract OperationProto toProtobuff();
+
+    public abstract Operation fromProtobuff(OperationProto proto) throws IOException;
 }

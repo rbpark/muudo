@@ -2,16 +2,19 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "io.muudo.metastore.proto";
 
-message Operation {
-    int64 txnId = 1;
-    string uniqueId = 2;
-    string parentId = 3;
+message OperationProto {
     enum Type {
         ADD = 0;
         DELETE = 1;
         MODIFY = 2;
         MOVE = 3;
+        REPLACE = 4;
     }
-    Type type = 4;
-    map<string, string> properties = 5;
+    Type type = 1;
+    int64 txnId = 2;
+    int64 timestamp = 3;
+    int64 id = 4;
+    int64 parentId = 5;
+    string user = 6;
+    map<string, string> properties = 7;
 }

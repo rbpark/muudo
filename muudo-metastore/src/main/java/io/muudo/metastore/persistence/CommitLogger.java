@@ -1,9 +1,9 @@
-package io.muudo.metastore.data;
+package io.muudo.metastore.persistence;
 
 import io.muudo.common.io.EncodingUtils;
 import io.muudo.common.util.Except;
 import io.muudo.common.util.Utils;
-import io.muudo.metastore.proto.Operation;
+import io.muudo.metastore.proto.OperationProto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,15 +12,10 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class CommitLogger {
-    public enum Action {
-        ADD,
-        DELETE,
-        MODIFY
-    }
-
     private static final byte[] MAGIC_BYTES = {0, 77, 85, 85};
     private static final byte[] VERSION = {0, 0};
     private static final Logger log = LoggerFactory.getLogger(CommitLogger.class);
@@ -32,7 +27,7 @@ public class CommitLogger {
     private int opQueueSize = 100;
     private long maxLogSize;
     private Path currentLog;
-    private long txnNum;
+    private AtomicLong txnNum = new AtomicLong();
 
     private CommitLogger(Path directory, String name, long maxLogSize) {
         this.directory = directory;
@@ -44,12 +39,10 @@ public class CommitLogger {
         return directory;
     }
 
-    public void commitToLog() {
+    protected synchronized void commitToLog(Operation operation) throws IOException {
+        OperationProto opProto = toProtobuff(operation);
 
-    }
-
-    protected void commitToLog(Operation operation) throws IOException {
-        byte[] opArray = operation.toByteArray();
+        byte[] opArray = opProto.toByteArray();
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         buffer.write(MAGIC_BYTES);
         buffer.write(VERSION);
@@ -59,8 +52,34 @@ public class CommitLogger {
         Files.write(currentLog, buffer.toByteArray(), StandardOpenOption.APPEND);
     }
 
-    public void readLog(int fromTxnId) {
+    /*package*/ OperationProto toProtobuff(Operation operation) throws IOException {
+        // Create the Protobuff version of the operation
+        OperationProto.Builder protoBuilder = OperationProto.newBuilder();
+        if (operation instanceof AddOperation) {
+            AddOperation addOp = (AddOperation)operation;
+            protoBuilder.setType(OperationProto.Type.ADD);
+        }
+        else if (operation instanceof ModifyOperation) {
+            ModifyOperation modifyOp = (ModifyOperation)operation;
+            protoBuilder.setType(OperationProto.Type.MODIFY);
+        }
+        else if (operation instanceof MoveOperation) {
+            MoveOperation moveOp = (MoveOperation)operation;
+            protoBuilder.setType(OperationProto.Type.MOVE);
+        }
+        else if (operation instanceof ReplaceOperation) {
+            ReplaceOperation replaceOp = (ReplaceOperation)operation;
+            protoBuilder.setType(OperationProto.Type.REPLACE);
+        }
+        else if (operation instanceof DeleteOperation) {
+            DeleteOperation deleteOp = (DeleteOperation)operation;
+            protoBuilder.setType(OperationProto.Type.DELETE);
+        }
+        else {
+            throw CommitLoggerException.of("Operation of type %s not recognized.", operation.getClass().getName());
+        }
 
+        return protoBuilder.build();
     }
 
     public void bootstrap() throws IOException {

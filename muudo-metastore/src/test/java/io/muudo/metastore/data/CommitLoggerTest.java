@@ -1,5 +1,6 @@
 package io.muudo.metastore.data;
 
+import io.muudo.metastore.persistence.CommitLogger;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class CommitLoggerTest {
     private static final Logger log = LoggerFactory.getLogger(CommitLoggerTest.class);

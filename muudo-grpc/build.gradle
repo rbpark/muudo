@@ -47,3 +47,8 @@ sourceSets {
         }
     }
 }
+
+clean.doFirst {
+    delete "${projectDir}/generated/grpc"
+    println "Cleaning ${projectDir}/generated/grpc"
+}
